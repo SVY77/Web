@@ -1,0 +1,25 @@
+﻿body {
+    background-color: #1B2838;
+}
+
+h1 {
+    font-weight: normal;
+    font-size: 26px;
+    color: #FFFFFF;
+    font-family: "Motiva Sans", Sans-serif;
+    font-weight: normal;
+    text-align: center;
+}
+
+h2 {
+    font-weight: normal;
+    font-size: 17px;
+    color: #CEDAE5;
+    font-family: Arial, Sans-Serif;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+    color: #67c1f5;
+}

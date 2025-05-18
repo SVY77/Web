@@ -1,0 +1,536 @@
+﻿<html>
+<head>
+  <meta name="referrer" content="no-referrer">
+  <link href="css/default.css" rel="stylesheet" />
+  <title>Add to Steam wishlist</title>
+  <script type="text/javascript">
+    function sha256(ascii) {
+      function rightRotate(value, amount) {
+        return (value >>> amount) | (value << (32 - amount));
+      };
+
+      var mathPow = Math.pow;
+      var maxWord = mathPow(2, 32);
+      var lengthProperty = 'length'
+      var i, j; // Used as a counter across the whole file
+      var result = ''
+
+      var words = [];
+      var asciiBitLength = ascii[lengthProperty] * 8;
+
+      //* caching results is optional - remove/add slash from front of this line to toggle
+      // Initial hash value: first 32 bits of the fractional parts of the square roots of the first 8 primes
+      // (we actually calculate the first 64, but extra values are just ignored)
+      var hash = sha256.h = sha256.h || [];
+      // Round constants: first 32 bits of the fractional parts of the cube roots of the first 64 primes
+      var k = sha256.k = sha256.k || [];
+      var primeCounter = k[lengthProperty];
+      /*/
+      var hash = [], k = [];
+      var primeCounter = 0;
+      //*/
+
+      var isComposite = {};
+      for (var candidate = 2; primeCounter < 64; candidate++) {
+        if (!isComposite[candidate]) {
+          for (i = 0; i < 313; i += candidate) {
+            isComposite[i] = candidate;
+          }
+          hash[primeCounter] = (mathPow(candidate, .5) * maxWord) | 0;
+          k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+        }
+      }
+
+      ascii += '\x80' // Append Ƈ' bit (plus zero padding)
+      while (ascii[lengthProperty] % 64 - 56) ascii += '\x00' // More zero padding
+      for (i = 0; i < ascii[lengthProperty]; i++) {
+        j = ascii.charCodeAt(i);
+        if (j >> 8) return; // ASCII check: only accept characters in range 0-255
+        words[i >> 2] |= j << ((3 - i) % 4) * 8;
+      }
+      words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+      words[words[lengthProperty]] = (asciiBitLength)
+
+      // process each chunk
+      for (j = 0; j < words[lengthProperty];) {
+        var w = words.slice(j, j += 16); // The message is expanded into 64 words as part of the iteration
+        var oldHash = hash;
+        // This is now the undefinedworking hash", often labelled as variables a...g
+        // (we have to truncate as well, otherwise extra entries at the end accumulate
+        hash = hash.slice(0, 8);
+
+        for (i = 0; i < 64; i++) {
+          var i2 = i + j;
+          // Expand the message into 64 words
+          // Used below if
+          var w15 = w[i - 15], w2 = w[i - 2];
+
+          // Iterate
+          var a = hash[0], e = hash[4];
+          var temp1 = hash[7]
+            + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) // S1
+            + ((e & hash[5]) ^ ((~e) & hash[6])) // ch
+            + k[i]
+            // Expand the message schedule if needed
+            + (w[i] = (i < 16) ? w[i] : (
+              w[i - 16]
+              + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) // s0
+              + w[i - 7]
+              + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10)) // s1
+            ) | 0
+            );
+          // This is only used once, so *could* be moved below, but it only saves 4 bytes and makes things unreadble
+          var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) // S0
+            + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2])); // maj
+
+          hash = [(temp1 + temp2) | 0].concat(hash); // We don't bother trimming off the extra ones, they're harmless as long as we're truncating when we do the slice()
+          hash[4] = (hash[4] + temp1) | 0;
+        }
+
+        for (i = 0; i < 8; i++) {
+          hash[i] = (hash[i] + oldHash[i]) | 0;
+        }
+      }
+
+      for (i = 0; i < 8; i++) {
+        for (j = 3; j + 1; j--) {
+          var b = (hash[i] >> (j * 8)) & 255;
+          result += ((b < 16) ? 0 : '') + b.toString(16);
+        }
+      }
+      return result;
+    };
+
+    function getUrlVars() {
+      var vars = {};
+      var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+        vars[key] = value;
+      });
+      return vars;
+    }
+
+    function getUrlParam(parameter, defaultvalue) {
+      var urlparameter = defaultvalue;
+
+      if (window.location.href.indexOf(parameter) > -1) {
+        urlparameter = getUrlVars()[parameter];
+      }
+
+      if (!urlparameter) {
+        return defaultvalue;
+      }
+
+      return urlparameter.replace("#", "");
+    }
+
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      var expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    function getCode() {
+      var val = "";
+      if (getCookie("Desolus_Code") == "") {
+        var campaignParam = getUrlParam('campaign', 'Empty');
+        var workerParam = getUrlParam('worker', 'Empty');
+        val = "mw-" + sha256(campaignParam + workerParam + '43317676cad02c8abf0e13b01de05b0846d9806bbb056b52faf321e39748d68c');
+        setCookie("Desolus_Code", val, 300);
+      }
+      else {
+        val = getCookie("Desolus_Code");
+      }
+
+      document.getElementById('code').innerHTML = val;
+      document.getElementById('code2').innerHTML = val;
+    }
+
+    function openSteamPage() {
+      window.open('steamredirect.html');
+    }
+
+    function checkParameters() {
+      var campaignParam = getUrlParam('campaign', 'Empty');
+      var workerParam = getUrlParam('worker', 'Empty');
+      var sourceParam = getUrlParam('source', 'Empty');
+
+      ////if (sourceParam != 'Empty' && sourceParam) {
+      ////    var val = 'T' + Math.floor(10000 + Math.random() * 90001) + 'Y';
+      ////    setCookie("Desolus_Code", val, 300);
+      ////}
+      ////else
+      if (campaignParam == 'Empty' || workerParam == 'Empty' || !campaignParam || !workerParam) {
+        if (sourceParam == 'Empty' || !sourceParam) {
+          clearAll();
+          document.location = 'https://x.com';
+        }
+        else {
+          var val = 'T' + Math.floor(10000 + Math.random() * 90001) + 'Y';
+          setCookie("Desolus_Code", val, 300);
+        }
+      }
+    }
+
+    function checkAlreadyComplete() {
+      if (getCookie("Desolus_Code") != "") {
+        clearAll();
+        getCode();
+        document.getElementById('already_complete').style.display = "block";
+      }
+      else {
+        checkParameters();
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('javaScriptInfo').style.display = "none";
+      document.getElementById('mainDiv').style.display = "none";
+      document.getElementById('does_not_qualify').style.display = "none";
+      document.getElementById('launch_steam').style.display = "none";
+      document.getElementById('is_steam_installed').style.display = "none";
+      document.getElementById('steam_account_check').style.display = "none";
+      document.getElementById('sign_in_client').style.display = "none";
+      document.getElementById('sign_in_tab').style.display = "none";
+      document.getElementById('double_check_steam_open').style.display = "none";
+      document.getElementById('go_to_steam_page').style.display = "none";
+      document.getElementById('wishlist_instructions').style.display = "none";
+      document.getElementById('follow_button').style.display = "none";
+      document.getElementById('final_confirmation').style.display = "none";
+      document.getElementById('done').style.display = "none";
+    }
+
+    function javaScriptInfo() {
+      clearAll();
+      document.getElementById('javaScriptInfo').style.display = "block";
+    }
+
+    function mainDiv() {
+      clearAll();
+      document.getElementById('mainDiv').style.display = "block";
+    }
+
+    function does_not_qualify() {
+      clearAll();
+      document.getElementById('does_not_qualify').style.display = "block";
+    }
+
+    function launch_steam() {
+      document.location = 'steam://store/1003460';
+      clearAll();
+      document.getElementById('launch_steam').style.display = "block";
+    }
+
+    function is_steam_installed() {
+      clearAll();
+      document.getElementById('is_steam_installed').style.display = "block";
+    }
+
+    function steam_account_check() {
+      clearAll();
+      document.getElementById('steam_account_check').style.display = "block";
+    }
+
+    function sign_in_client() {
+      clearAll();
+      document.getElementById('sign_in_client').style.display = "block";
+    }
+
+    function sign_in_tab() {
+      clearAll();
+      document.getElementById('sign_in_tab').style.display = "block";
+    }
+
+    function double_check_steam_open() {
+      clearAll();
+      document.getElementById('double_check_steam_open').style.display = "block";
+    }
+
+    function go_to_steam_page() {
+      clearAll();
+      document.getElementById('sign_in_tab').style.display = "block";
+      openSteamPage();
+    }
+
+    function wishlist_instructions() {
+      clearAll();
+      document.getElementById('wishlist_instructions').style.display = "block";
+    }
+
+    function follow_button() {
+      clearAll();
+      document.getElementById('follow_button').style.display = "block";
+    }
+
+    function final_confirmation() {
+      clearAll();
+      document.getElementById('final_confirmation').style.display = "block";
+    }
+
+    function done() {
+      getCode();
+      clearAll();
+      document.getElementById('done').style.display = "block";
+    }
+  </script>
+</head>
+<body>
+  <div id="javaScriptInfo" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative;">
+    <h1>You must enable JavaScript</h1>
+    <h2><i>If using Internet Explorer, select <b>Allow Blocked Content</b></i></h2>
+  </div>
+  <div id="already_complete" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>This task has already been completed</h1>
+    <h2>
+      Thank you for your time. Your single-use code was:
+    </h2>
+    <h1 id="code2"></h1>
+  </div>
+  <div id="invalid_url" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>This URL is invalid</h1>
+    <h2>
+      Please make sure you copy/pasted the full URL correctly from the task website.
+    </h2>
+  </div>
+  <div id="mainDiv" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Qualifying Question</h1>
+    <h1 id="test"></h1>
+    <h2>
+      Do you have a Steam account?
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="is_steam_installed()">Yes</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="does_not_qualify()">No</a>
+    </h2>
+  </div>
+  <div id="does_not_qualify" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Sorry, you do not qualify for this task</h1>
+    <h2>
+      A Steam account is required. You can exit this page.
+      <br />
+      <br />
+      (No code is given because having a Steam account was a pre-stated requirement)
+    </h2>
+  </div>
+  <div id="launch_steam" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <center>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <img src="images/up.png" />
+      <h1>Click "Open Steam Client Bootstrapper"</h1>
+      <h2>(This may be slightly different, depending on your browser)</h2>
+      <h2>
+        <br />
+        <br />
+        <a href="javascript:void(0);" onclick="double_check_steam_open()">I've done this</a>
+        <br />
+        <br />
+        <a href="javascript:void(0);" onclick="double_check_steam_open()">I don't see a popup to click</a>
+      </h2>
+    </center>
+  </div>
+  <div id="is_steam_installed" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Step 1 of 3</h1>
+    <h2>
+      Do you have Steam installed on this computer?
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="launch_steam()">Yes</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="go_to_steam_page()">No</a>
+    </h2>
+  </div>
+  <div id="steam_account_check" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Please enter your Steam user name</h1>
+    <h2>
+      This is for verification. We will not collect or store this.
+      <br />
+      <br />
+      <input type="text" id="steam_name" autofocus>
+      <br />
+      <br />
+      <a onclick="onChange()" href="javascript:void(0);">Confirm</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="does_not_qualify()">I don't have a Steam account</a>
+    </h2>
+  </div>
+  <div id="sign_in_client" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Step 2 of 3</h1>
+    <h2>
+      Please go to the Steam client and <b>Sign in</b> to Steam.
+      <br />
+      <br />
+      <img src="images/Steam_Login_Client.gif" border="3" />
+      <br />
+      <i>This is just a preview</i>
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="wishlist_instructions()">I've done this</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="wishlist_instructions()">I was already signed in</a>
+    </h2>
+  </div>
+  <div id="sign_in_tab" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Step 2 of 3</h1>
+    <h2>
+      You should be at the <i>Desolus</i> Steam page. Please <b>Sign in</b> to Steam.
+      <br />
+      <br />
+      <img src="images/Steam_Login_Webpage.gif" border="3" />
+      <br />
+      <i>This is just a preview</i>
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="wishlist_instructions()">I've done this</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="wishlist_instructions()">I was already signed in</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="go_to_steam_page()">I don't see the Steam page</a>
+    </h2>
+  </div>
+  <div id="double_check_steam_open" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Did the Steam client open?</h1>
+    <h2>(You should either see the Steam Login popup or the <i>Desolus</i> store page.)</h2>
+    <h2>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="sign_in_client()">Yes</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="go_to_steam_page()">No</a>
+    </h2>
+  </div>
+  <div id="go_to_steam_page" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>We've just opened a new tab in your browser</h1>
+    <h2>
+      If you didn't see a new tab open, please <a href="steamredirect.html" target="_blank">click here.</a>
+      <br />
+      <br />
+      <img src="images/firstlink.png" border="3" />
+      <br />
+      <i>This is just a preview</i>
+      <br />
+      <br />
+      <br />
+      <b>Click the link</b> for the <i>Desolus</i> Steam page in the tweet.
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="sign_in_tab()">I've done this</a>
+    </h2>
+  </div>
+  <div id="wishlist_instructions" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Step 3 of 3</h1>
+    <h2>
+      Click the <b>Add to Wishlist</b> button on the <i>Desolus</i> store page.
+      <br />
+      You may need to scroll down slightly.
+      <br />
+      <br />
+      <img src="images/Desolus_Wishlist.gif" border="3" />
+      <br />
+      <i>This is just a preview</i>
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="go_to_steam_page()">I can't find the <i>Desolus</i> store page</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="follow_button()">I've added <i>Desolus</i> to my Steam wishlist</a>
+    </h2>
+  </div>
+  <div id="follow_button" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Step 3 of 3</h1>
+    <h2>
+      Now please click the <b>Follow</b> button right next to the last button.
+      <br />
+      <br />
+      <br />
+      <img src="images/Desolus_Follow.gif" border="3" />
+      <br />
+      <i>This is just a preview</i>
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="final_confirmation()">I've done this</a>
+    </h2>
+  </div>
+  <div id="final_confirmation" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Promise that you've wishlisted?</h1>
+    <h2>
+      We're just <i>two people</i> paying for this <i>out of our savings</i>.
+      <br />
+      <br />
+      We've spent years on this passion project with no pay and are just trying to get wishlists.
+      <br />
+      <br />
+      Do you promise that you've wishlisted?
+      <br />
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="done()">I promise that I've wishlisted</a>
+      <br />
+      <br />
+      <a href="javascript:void(0);" onclick="wishlist_instructions()">I still need to wishlist</a>
+    </h2>
+  </div>
+  <div id="done" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
+    <h1>Thank you for your time</h1>
+    <h2>
+      Here is your code:
+    </h2>
+    <h1 id="code"></h1>
+    <h2><b>Keep <i>Desolus</i> wishlisted to receive the payment</b></h2>
+  </div>
+  <script type="text/javascript">
+    document.getElementById('mainDiv').style.display = "block";
+    document.getElementById('javaScriptInfo').style.display = "none";
+    checkAlreadyComplete();
+
+    function onChange() {
+      var text = document.getElementById('steam_name').value;
+      if (text) {
+        is_steam_installed();
+      }
+      else {
+        does_not_qualify();
+      }
+    }
+  </script>
+</body>
+</html>
