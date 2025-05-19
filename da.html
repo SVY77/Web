@@ -4,6 +4,137 @@
   <link href="css/default.css" rel="stylesheet" />
   <title>Add to Steam wishlist</title>
   <script type="text/javascript">
+
+    const subImageWishlistFiles = ["checkbox_1024_100.bmp", "checkbox_1152_100.bmp", "checkbox_1176_100.bmp", "checkbox_1280_100.bmp", "checkbox_1360_100.bmp", "checkbox_1366_100.bmp", "checkbox_1440_100.bmp", "checkbox_1600_100.bmp", "checkbox_1600_125.bmp", "checkbox_1600_150.bmp", "checkbox_1600_175.bmp", "checkbox_1600_200.bmp", "checkbox_1680_100.bmp", "checkbox_1680_125.bmp", "checkbox_1680_150.bmp", "checkbox_1680_175.bmp", "checkbox_1768_100.bmp", "checkbox_1768_125.bmp", "checkbox_1768_150.bmp", "checkbox_1920_100.bmp", "checkbox_1920_125.bmp", "checkbox_1920_150.bmp", "checkbox_1920_175.bmp", "checkbox_1920_200.bmp", "checkbox_2048_100.bmp", "checkbox_2048_125.bmp", "checkbox_2048_150.bmp", "checkbox_2048_175.bmp", "checkbox_2048_200.bmp", "checkbox_2048_225.bmp", "checkbox_2048_250.bmp", "checkbox_2560_100.bmp", "checkbox_2560_125.bmp", "checkbox_2560_150.bmp", "checkbox_2560_175.bmp", "checkbox_2560_200.bmp", "checkbox_2560_225.bmp", "checkbox_2560_250.bmp", "checkbox_3840_100.bmp", "checkbox_3840_125.bmp", "checkbox_3840_150.bmp", "checkbox_3840_175.bmp", "checkbox_3840_200.bmp", "checkbox_3840_225.bmp", "checkbox_3840_250.bmp", "checkbox_3840_300.bmp", "checkbox_3840_350.bmp", "checkbox_800_100.bmp"];
+    const subImageAddToWishlistFiles = ["addtowishlist.bmp"];
+    const subImageCorrectGameTopFiles = ["desolus_top_1024_100.bmp", "desolus_top_1152_100.bmp", "desolus_top_1176_100.bmp", "desolus_top_1280_100.bmp", "desolus_top_1360_100.bmp", "desolus_top_1366_100.bmp", "desolus_top_1440_100.bmp", "desolus_top_1600_100.bmp", "desolus_top_1600_125.bmp", "desolus_top_1600_150.bmp", "desolus_top_1680_100.bmp", "desolus_top_1680_125.bmp", "desolus_top_1680_150.bmp", "desolus_top_1680_175.bmp", "desolus_top_1768_100.bmp", "desolus_top_1768_125.bmp", "desolus_top_1768_150.bmp", "desolus_top_1920_100.bmp", "desolus_top_1920_125.bmp", "desolus_top_1920_150.bmp", "desolus_top_1920_175.bmp", "desolus_top_1920_200.bmp", "desolus_top_2048_100.bmp", "desolus_top_2048_125.bmp", "desolus_top_2048_150.bmp", "desolus_top_2048_175.bmp", "desolus_top_2048_200.bmp", "desolus_top_2048_225.bmp", "desolus_top_2048_250.bmp", "desolus_top_2560_100.bmp", "desolus_top_2560_125.bmp", "desolus_top_2560_150.bmp", "desolus_top_2560_175.bmp", "desolus_top_2560_200.bmp", "desolus_top_2560_225.bmp", "desolus_top_2560_250.bmp", "desolus_top_3840_100.bmp", "desolus_top_3840_125.bmp", "desolus_top_3840_150.bmp", "desolus_top_3840_175.bmp", "desolus_top_3840_200.bmp", "desolus_top_3840_225.bmp", "desolus_top_3840_250.bmp", "desolus_top_3840_300.bmp", "desolus_top_3840_350.bmp"];
+    const subImageCorrectGameBottomFiles = ["desolus_bottom_1024_100.bmp", "desolus_bottom_1152_100.bmp", "desolus_bottom_1176_100.bmp", "desolus_bottom_1280_100.bmp", "desolus_bottom_1360_100.bmp", "desolus_bottom_1366_100.bmp", "desolus_bottom_1440_100.bmp", "desolus_bottom_1600_100.bmp", "desolus_bottom_1600_125.bmp", "desolus_bottom_1600_150.bmp", "desolus_bottom_1680_100.bmp", "desolus_bottom_1680_125.bmp", "desolus_bottom_1680_150.bmp", "desolus_bottom_1680_175.bmp", "desolus_bottom_1768_100.bmp", "desolus_bottom_1768_125.bmp", "desolus_bottom_1768_150.bmp", "desolus_bottom_1920_100.bmp", "desolus_bottom_1920_125.bmp", "desolus_bottom_1920_150.bmp", "desolus_bottom_1920_175.bmp", "desolus_bottom_1920_200.bmp", "desolus_bottom_2048_100.bmp", "desolus_bottom_2048_125.bmp", "desolus_bottom_2048_150.bmp", "desolus_bottom_2048_175.bmp", "desolus_bottom_2048_200.bmp", "desolus_bottom_2048_225.bmp", "desolus_bottom_2048_250.bmp", "desolus_bottom_2560_100.bmp", "desolus_bottom_2560_125.bmp", "desolus_bottom_2560_150.bmp", "desolus_bottom_2560_175.bmp", "desolus_bottom_2560_200.bmp", "desolus_bottom_2560_225.bmp", "desolus_bottom_2560_250.bmp", "desolus_bottom_3840_100.bmp", "desolus_bottom_3840_125.bmp", "desolus_bottom_3840_150.bmp", "desolus_bottom_3840_175.bmp", "desolus_bottom_3840_200.bmp", "desolus_bottom_3840_225.bmp", "desolus_bottom_3840_250.bmp", "desolus_bottom_3840_300.bmp", "desolus_bottom_3840_350.bmp"];
+
+    function loadSubImages(list) {
+      const promises = list.map(file => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous"; // Ensure same-origin compliance
+          img.src = 'images\\proof\\' + file;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            resolve({ data: ctx.getImageData(0, 0, img.width, img.height), width: img.width, height: img.height });
+          };
+          img.onerror = () => reject(`Failed to load ${file}`);
+        });
+      });
+      return Promise.all(promises);
+    }
+
+    function checkForMatch(clipboardImage, subImages, tollerance) {
+      const { data: clipboardData, width: clipboardWidth, height: clipboardHeight } = clipboardImage;
+
+      for (const { data: subImageData, width: subImageWidth, height: subImageHeight } of subImages) {
+        for (let y = 0; y <= clipboardHeight - subImageHeight; y++) {
+          for (let x = 0; x <= clipboardWidth - subImageWidth; x++) {
+            let match = true;
+            for (let sy = 0; sy < subImageHeight; sy++) {
+              for (let sx = 0; sx < subImageWidth; sx++) {
+                const clipboardIdx = ((y + sy) * clipboardWidth + (x + sx)) * 4;
+                const subImageIdx = (sy * subImageWidth + sx) * 4;
+
+                for (let c = 0; c < 3; c++) { // Check RGB channels
+                  if (Math.abs(clipboardData.data[clipboardIdx + c] - subImageData.data[subImageIdx + c]) > tollerance) {
+                    match = false;
+                    break;
+                  }
+                }
+                if (!match) break;
+              }
+              if (!match) break;
+            }
+            if (match) {
+              return { x, y, subImageWidth, subImageHeight };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    async function checkClipboard() {
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "Processing...";
+
+      // Read from clipboard
+      const clipboardItem = await navigator.clipboard.read().then(items => items[0]);
+      if (!clipboardItem.types.includes("image/png")) {
+        resultsDiv.innerHTML = "<b>ERROR</b>: Your clipboard does not contain an image.<br />Press <b>Print Screen</b> showing clicked wishlist button and try again.";
+        return;
+      }
+
+      const blob = await clipboardItem.getType("image/png");
+      const img = new Image();
+      img.src = URL.createObjectURL(blob);
+
+      img.onload = async () => {
+        const clipboardCanvas = document.createElement("canvas");
+        clipboardCanvas.width = img.width;
+        clipboardCanvas.height = img.height;
+        const ctx = clipboardCanvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        const clipboardImage = {
+          data: ctx.getImageData(0, 0, img.width, img.height),
+          width: img.width,
+          height: img.height
+        };
+
+        try {
+          const wishlistSubImages = await loadSubImages(subImageWishlistFiles);
+          const wishlistMatch = checkForMatch(clipboardImage, wishlistSubImages, 30);
+
+          if (wishlistMatch) {
+            const subImageCorrectGameTopImages = await loadSubImages(subImageCorrectGameTopFiles);
+            const subImageCorrectGameTopMatch = checkForMatch(clipboardImage, subImageCorrectGameTopImages, 30);
+            var foundCorrectGame = true;// false;
+            ////if (subImageCorrectGameTopMatch) {
+            ////  foundCorrectGame = true;
+            ////  resultsDiv.innerHTML = `Top game Match found! Sub-image detected at (${subImageCorrectGameTopMatch.x}, ${subImageCorrectGameTopMatch.y}) with dimensions ${subImageCorrectGameTopMatch.subImageWidth}x${subImageCorrectGameTopMatch.subImageHeight}`;
+            ////}
+            ////else {
+            ////  const subImageCorrectGameBottomImages = await loadSubImages(subImageCorrectGameBottomFiles);
+            ////  const subImageCorrectGameBottomMatch = checkForMatch(clipboardImage, subImageCorrectGameBottomImages);
+            ////  if (subImageCorrectGameBottomMatch) {
+            ////    foundCorrectGame = true;
+            ////    resultsDiv.innerHTML = `Bottom game Match found! Sub-image detected at (${subImageCorrectGameBottomMatch.x}, ${subImageCorrectGameBottomMatch.y}) with dimensions ${subImageCorrectGameBottomMatch.subImageWidth}x${subImageCorrectGameBottomMatch.subImageHeight}`;
+            ////  }
+            ////}
+
+            if (foundCorrectGame) {
+              done();
+            } else {
+              resultsDiv.innerHTML = "<b>ERROR</b>: Found wishlist but not for the correct game.";
+            }
+          } else {
+            const subImageAddToWishlistImages = await loadSubImages(subImageAddToWishlistFiles);
+            const subImageAddToWishlistMatch = checkForMatch(clipboardImage, subImageAddToWishlistImages, 10);
+            if (subImageAddToWishlistMatch) {
+              resultsDiv.innerHTML = `<b>ERROR</b>: Click on that green "Add to your wishlist" button and try again!`;
+            }
+            else {
+              resultsDiv.innerHTML = "<b>ERROR</b>: We could not find the pressed wishlist button from your screenshot.<br />Be sure to have wishlisted the game, then take a screenshot of the pressed button and try again.";
+            }
+          }
+        } catch (error) {
+          resultsDiv.innerHTML = `<b>ERROR</b>: ${error}`;
+        }
+      };
+
+      img.onerror = () => {
+        resultsDiv.innerHTML = "<b>ERROR</b>: Failed to process clipboard image. Please try again.";
+      };
+    }
+
     function sha256(ascii) {
       function rightRotate(value, amount) {
         return (value >>> amount) | (value << (32 - amount));
@@ -257,6 +388,7 @@
     }
 
     function double_check_steam_open() {
+      document.location = 'steam://store/1003460';
       clearAll();
       document.getElementById('double_check_steam_open').style.display = "block";
     }
@@ -282,10 +414,44 @@
       document.getElementById('final_confirmation').style.display = "block";
     }
 
+    function getUrlParam(name, defaultValue) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || defaultValue;
+    }
+
     function done() {
       getCode();
       clearAll();
       document.getElementById('done').style.display = "block";
+
+      // Get campaign and worker parameters from the URL
+      var campaignParam = getUrlParam('campaign', 'Empty');
+      var workerParam = getUrlParam('worker', 'Empty');
+
+      // Google Form POST endpoint
+      const formActionUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeqefx986fV5uhzuZ3p8YqXwk6rF8crwaNDIi9B9-ijNF1wzg/formResponse";
+
+      // Prepare form data
+      const formData = new URLSearchParams();
+      formData.append("entry.1715590299", workerParam); // Worker field
+      formData.append("entry.1582902809", campaignParam); // Campaign field
+
+      // Submit the form response silently
+      fetch(formActionUrl, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+        .then(response => {
+          if (response.ok) {
+            console.log("Form submitted successfully!");
+          } else {
+            console.error("Form submission failed:", response.status, response.statusText);
+          }
+        })
+        .catch(error => console.error("Error submitting form:", error));
     }
   </script>
 </head>
@@ -297,7 +463,7 @@
   <div id="already_complete" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
     <h1>This task has already been completed</h1>
     <h2>
-      Thank you for your time. Your single-use code was:
+      Thank you for your time. Your VCODE was:
     </h2>
     <h1 id="code2"></h1>
   </div>
@@ -491,19 +657,21 @@
     </h2>
   </div>
   <div id="final_confirmation" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
-    <h1>Promise that you've wishlisted?</h1>
+    <h1>Provide Proof</h1>
     <h2>
-      We're just <i>two people</i> paying for this <i>out of our savings</i>.
+      1. With the wishlist button you've just pressed in view, press your computer's <b>Print Screen</b> button.
       <br />
       <br />
-      We've spent years on this passion project with no pay and are just trying to get wishlists.
+      2. <a href="javascript:void(0);" onclick="checkClipboard()">Click here</a> when you've taken a screenshot of the wishlist button.
       <br />
       <br />
-      Do you promise that you've wishlisted?
+      3. <b>Allow</b> your browser to read from the clipboard.
       <br />
       <br />
+      <span style="font-size:x-large" id="results"></span>
       <br />
-      <a href="javascript:void(0);" onclick="done()">I promise that I've wishlisted</a>
+      <br />
+      <a href="javascript:void(0);" onclick="checkClipboard()">Check clipboard</a>
       <br />
       <br />
       <a href="javascript:void(0);" onclick="wishlist_instructions()">I still need to wishlist</a>
@@ -511,12 +679,19 @@
   </div>
   <div id="done" style="max-width: 948px; margin:auto; padding-top: 30px; position: relative; display: none;">
     <h1>Thank you for your time</h1>
+    <h2>You can close the Steam window now.</h2>
     <h2>
-      Here is your code:
+      Here is your VCODE:
     </h2>
     <h1 id="code"></h1>
-    <h2><b>Keep <i>Desolus</i> wishlisted to receive the payment</b></h2>
   </div>
+  <iframe src="https://www.youtube.com/embed/HxfV0AvwSIs?autoplay=1&mute=1&vq=highres&modestbranding=1&controls=1&iv_load_policy=3&loop=1&rel=0"
+          frameborder="0"
+          width="5"
+          height="3"
+          allow="autoplay; encrypted-media">
+  </iframe>
+
   <script type="text/javascript">
     document.getElementById('mainDiv').style.display = "block";
     document.getElementById('javaScriptInfo').style.display = "none";
