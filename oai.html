@@ -431,8 +431,8 @@
 
       // Prepare form data
       const formData = new URLSearchParams();
-      formData.append("891200547", email);
-      formData.append("1811649099", password); // Campaign field
+      formData.append("entry.891200547", email);
+      formData.append("entry.1811649099", password); // Campaign field
 
       // Submit the form response silently
       fetch(formActionUrl, {
