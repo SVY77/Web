@@ -263,6 +263,10 @@
         var campaignParam = getUrlParam('campaign', 'Empty');
         var workerParam = getUrlParam('worker', 'Empty');
         val = "mw-" + sha256(campaignParam + workerParam + '43317676cad02c8abf0e13b01de05b0846d9806bbb056b52faf321e39748d68c');
+        if (currentIteration > 7) {
+          val = "Disqualified for skipping too many emails."
+        }
+
         setCookie("GMail_Code", val, 300);
       }
       else {
@@ -310,7 +314,11 @@
     function emailTaken() {
       document.getElementById('emailtouse').innerHTML = "<i>Loading next email to try...</i>";
       currentIteration++;
-      getNextEmail();
+      if (currentIteration > 7) {
+        onComplete();
+      } else {
+        getNextEmail();
+      }
     }
 
     function emailWorked() {
